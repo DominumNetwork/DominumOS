@@ -3,6 +3,7 @@ window.onerror = function(msg, url, line, col, error) {
 };
 
 document.addEventListener('DOMContentLoaded', function() {
+  const timeDisplay = document.getElementById('time-display');
 // --- Draggable Windows ---
 function makeDraggable(win) {
   let isDragging = false, offsetX, offsetY;
@@ -31,7 +32,6 @@ const contextMenu = document.getElementById('context-menu');
 const startMenu = document.getElementById('start-menu');
 const startBtn = document.getElementById('start-btn');
 const taskbarApps = document.getElementById('taskbar-apps');
-const timeDisplay = document.getElementById('time-display');
 let zIndexCounter = 20;
 let openWindows = [];
 
