@@ -64,14 +64,26 @@ function launchApp(title) {
   win.className = 'window';
   win.dataset.appTitle = title;
   win.style.zIndex = zIndexCounter++;
+  // --- Window Controls Order by OS ---
+  let controlsHTML = '';
+  const os = document.body.getAttribute('data-os') || 'win11';
+  if (os === 'macos') {
+    controlsHTML = `
+      <button class="close" title="Close"></button>
+      <button class="minimize" title="Minimize"></button>
+      <button class="maximize" title="Maximize"></button>
+    `;
+  } else {
+    controlsHTML = `
+      <button class="minimize" title="Minimize">&#x2015;</button>
+      <button class="maximize" title="Maximize">&#x25A1;</button>
+      <button class="close" title="Close">&#x2715;</button>
+    `;
+  }
   win.innerHTML = `
     <div class="title-bar">
       <span>${title}</span>
-      <span class="window-controls">
-        <button class="minimize" title="Minimize">&#x2015;</button>
-        <button class="maximize" title="Maximize">&#x25A1;</button>
-        <button class="close" title="Close">&#x2715;</button>
-      </span>
+      <span class="window-controls">${controlsHTML}</span>
     </div>
     <div class="content">${getAppContent(title)}</div>
   `;
@@ -81,27 +93,24 @@ function launchApp(title) {
   focusWindow(win);
   openWindows.push(win);
   updateTaskbar();
-  // Window controls
-  const [minBtn, maxBtn, closeBtn] = win.querySelectorAll('.window-controls button');
-  // macOS traffic lights: swap order and hide icons
-  if (document.body.getAttribute('data-theme') === 'macos') {
-    win.querySelector('.window-controls').innerHTML = `
-      <button class="close" title="Close"></button>
-      <button class="minimize" title="Minimize"></button>
-      <button class="maximize" title="Maximize"></button>
-    `;
-  }
-  // Re-query after possible macOS swap
+  // Assign window control actions
   const controls = win.querySelectorAll('.window-controls button');
-  const minBtn2 = controls[1] || minBtn;
-  const maxBtn2 = controls[2] || maxBtn;
-  const closeBtn2 = controls[0] || closeBtn;
-  minBtn2.onclick = e => {
+  let minBtn, maxBtn, closeBtn;
+  if (os === 'macos') {
+    closeBtn = controls[0];
+    minBtn = controls[1];
+    maxBtn = controls[2];
+  } else {
+    minBtn = controls[0];
+    maxBtn = controls[1];
+    closeBtn = controls[2];
+  }
+  minBtn.onclick = e => {
     e.stopPropagation();
     win.style.display = 'none';
     updateTaskbar();
   };
-  maxBtn2.onclick = e => {
+  maxBtn.onclick = e => {
     e.stopPropagation();
     if (win.classList.contains('maximized')) {
       win.classList.remove('maximized');
@@ -121,7 +130,7 @@ function launchApp(title) {
       win.style.height = 'calc(100vh - 48px)';
     }
   };
-  closeBtn2.onclick = e => {
+  closeBtn.onclick = e => {
     e.stopPropagation();
     win.parentNode && win.parentNode.removeChild(win);
     openWindows = openWindows.filter(w => w !== win);
@@ -193,7 +202,44 @@ function getAppContent(title) {
     case 'Gallery':
       return `<iframe src='apps/gallery.html' style='width:100%;height:90%;border:none;border-radius:8px;background:#fff;'></iframe>`;
     case 'Settings':
-      return `<div><b>Settings</b><br><br><label>Theme/OS: <select id='theme-select'><option value='win11'>Windows 11</option><option value='macos'>macOS</option><option value='chromeos'>ChromeOS</option><option value='linux'>Linux</option><option value='dark'>Dark</option><option value='light'>Light</option></select></label><br><br><label>User: <select id='user-select'><option value='user1'>User 1</option><option value='user2'>User 2</option></select></label></div>`;
+      return `
+      <div class="settings-app" style="display:flex;min-height:260px;">
+        <div class="settings-sidebar" style="width:160px;padding:18px 0 18px 0;background:var(--window-bg);border-right:1.5px solid var(--window-border);display:flex;flex-direction:column;gap:8px;">
+          <div data-section="appearance" class="active" style="padding:10px 18px;cursor:pointer;border-radius:8px;">Appearance</div>
+          <div data-section="system" style="padding:10px 18px;cursor:pointer;border-radius:8px;">System</div>
+          <div data-section="users" style="padding:10px 18px;cursor:pointer;border-radius:8px;">Users</div>
+          <div data-section="personalization" style="padding:10px 18px;cursor:pointer;border-radius:8px;">Personalization</div>
+          <div data-section="widgets" style="padding:10px 18px;cursor:pointer;border-radius:8px;">Widgets</div>
+          <div data-section="about" style="padding:10px 18px;cursor:pointer;border-radius:8px;">About</div>
+        </div>
+        <div class="settings-content" style="flex:1;padding:24px;">
+          <section data-section="appearance" class="active">
+            <label style="display:block;margin-bottom:12px;">OS Design:<br>
+              <select id="os-select" style="margin-top:4px;width:140px;">
+                <option value="win11">Windows 11</option>
+                <option value="macos">macOS</option>
+                <option value="chromeos">ChromeOS</option>
+                <option value="linux">Linux</option>
+              </select>
+            </label>
+            <label style="display:block;margin-bottom:12px;">Theme:<br>
+              <select id="theme-select" style="margin-top:4px;width:140px;">
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+              </select>
+            </label>
+            <label style="display:block;margin-bottom:12px;">Accent Color:<br>
+              <input type="color" id="accent-color" value="#2563eb" style="margin-top:4px;width:40px;height:28px;border:none;background:none;" />
+            </label>
+          </section>
+          <section data-section="system" style="display:none;">System settings coming soon.</section>
+          <section data-section="users" style="display:none;">User management coming soon.</section>
+          <section data-section="personalization" style="display:none;">Wallpaper and personalization coming soon.</section>
+          <section data-section="widgets" style="display:none;">Widget toggles coming soon.</section>
+          <section data-section="about" style="display:none;">WebOS v1.0<br>By DominumNetwork</section>
+        </div>
+      </div>
+      `;
     case 'Notepad':
       return `<iframe src='apps/notepad.html' style='width:100%;height:90%;border:none;border-radius:8px;background:#fff;'></iframe>`;
     case 'Calculator':

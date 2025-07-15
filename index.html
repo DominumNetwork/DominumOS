@@ -16,7 +16,7 @@
       --shadow: 0 8px 32px rgba(0,0,0,0.18);
       --font: 'Segoe UI', 'Inter', sans-serif;
     }
-    body[data-theme='win11'] {
+    body[data-os='win11'] {
       --accent: #2563eb;
       --bg: #f8fafc;
       --window-bg: #fff;
@@ -25,7 +25,7 @@
       --taskbar-color: #222;
       --font: 'Segoe UI', 'Inter', sans-serif;
     }
-    body[data-theme='macos'] {
+    body[data-os='macos'] {
       --accent: #007aff;
       --bg: #f5f5f7;
       --window-bg: #fff;
@@ -34,7 +34,7 @@
       --taskbar-color: #222;
       --font: 'San Francisco', 'Segoe UI', 'Inter', sans-serif;
     }
-    body[data-theme='chromeos'] {
+    body[data-os='chromeos'] {
       --accent: #4285f4;
       --bg: #eaf1fb;
       --window-bg: #fff;
@@ -43,7 +43,7 @@
       --taskbar-color: #222;
       --font: 'Roboto', 'Segoe UI', 'Inter', sans-serif;
     }
-    body[data-theme='linux'] {
+    body[data-os='linux'] {
       --accent: #4caf50;
       --bg: #e8f5e9;
       --window-bg: #fff;
@@ -53,22 +53,18 @@
       --font: 'Ubuntu', 'Segoe UI', 'Inter', sans-serif;
     }
     body[data-theme='dark'] {
-      --accent: #60a5fa;
       --bg: #18181b;
       --window-bg: #23272f;
       --window-border: #222;
       --taskbar-bg: #23272f;
       --taskbar-color: #fff;
-      --font: 'Segoe UI', 'Inter', sans-serif;
     }
     body[data-theme='light'] {
-      --accent: #2563eb;
       --bg: #f8fafc;
       --window-bg: #fff;
       --window-border: #e0e0e0;
       --taskbar-bg: #fff;
       --taskbar-color: #222;
-      --font: 'Segoe UI', 'Inter', sans-serif;
     }
     body, html {
       height: 100%;
@@ -319,6 +315,57 @@
       transition: background 0.2s;
     }
     #sticky-toggle:hover { background: #1746a0; }
+    /* Taskbar/Window/Control redesign for each OS */
+    body[data-os='win11'] #taskbar {
+      background: var(--taskbar-bg);
+      border-radius: 18px 18px 0 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 540px;
+      min-width: 320px;
+      box-shadow: 0 -2px 24px #0003;
+      border-top: none;
+      font-family: var(--font);
+    }
+    body[data-os='macos'] #taskbar {
+      background: #f5f5f7;
+      border-radius: 18px 18px 18px 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 420px;
+      min-width: 320px;
+      box-shadow: 0 2px 24px #0002;
+      border-top: none;
+      font-family: var(--font);
+    }
+    body[data-os='chromeos'] #taskbar {
+      background: #fff;
+      border-radius: 18px 18px 0 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 480px;
+      min-width: 320px;
+      box-shadow: 0 -2px 24px #0003;
+      border-top: none;
+      font-family: var(--font);
+    }
+    body[data-os='linux'] #taskbar {
+      background: #263238;
+      color: #fff;
+      border-top: 2.5px solid #4caf50;
+      font-family: var(--font);
+    }
+    /* Volume widget */
+    #volume-widget {
+      width: 120px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-left: 12px;
+    }
+    #volume-slider {
+      width: 80px;
+    }
   </style>
 </head>
 <body>
@@ -354,6 +401,10 @@
       <div id="taskbar-apps"></div>
     </div>
     <div class="right">
+      <div id="volume-widget">
+        <span id="volume-icon">🔊</span>
+        <input type="range" id="volume-slider" min="0" max="100" value="80" />
+      </div>
       <span id="time-display"></span>
       <span id="wifi-svg" class="svg-icon"></span>
       <span id="battery-svg" class="svg-icon"></span>
