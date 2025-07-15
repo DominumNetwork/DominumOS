@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>WebOS Browser</title>
   <link rel="stylesheet" href="browser.css" />
+  <!-- Ultraviolet Proxy Scripts -->
+  <script src="../../src/uv/uv.bundle.js"></script>
+  <script src="../../src/uv/uv.config.js"></script>
+  <script src="../../src/uv/uv.handler.js"></script>
+  <script src="../../src/uv/uv.sw.js"></script>
 </head>
 <body>
   <div class="browser-app">
@@ -16,6 +21,10 @@
       <button id="back-btn" title="Back">⟨</button>
       <button id="forward-btn" title="Forward">⟩</button>
       <button id="reload-btn" title="Reload">⟳</button>
+      <select id="proxy-mode" title="Proxy Mode">
+        <option value="direct">Direct</option>
+        <option value="ultraviolet">Ultraviolet</option>
+      </select>
       <input id="browser-address" type="text" placeholder="Search or enter address" />
       <button id="go-btn">Go</button>
     </div>
