@@ -3,6 +3,27 @@ window.onerror = function(msg, url, line, col, error) {
 };
 
 document.addEventListener('DOMContentLoaded', function() {
+// --- Draggable Windows ---
+function makeDraggable(win) {
+  const titleBar = win.querySelector('.title-bar');
+  let isDragging = false, offsetX, offsetY;
+  titleBar.addEventListener('mousedown', e => {
+    if (e.target.closest('.window-controls')) return;
+    isDragging = true;
+    offsetX = e.clientX - win.offsetLeft;
+    offsetY = e.clientY - win.offsetTop;
+    focusWindow(win);
+  });
+  document.addEventListener('mousemove', e => {
+    if (isDragging && !win.classList.contains('maximized')) {
+      win.style.left = `${e.clientX - offsetX}px`;
+      win.style.top = `${e.clientY - offsetY}px`;
+    }
+  });
+  document.addEventListener('mouseup', () => {
+    isDragging = false;
+  });
+}
 // --- Desktop and Window System ---
 const desktop = document.getElementById('desktop');
 const contextMenu = document.getElementById('context-menu');
@@ -184,27 +205,6 @@ function getAppContent(title) {
     default:
       return `This is the ${title} app.`;
   }
-}
-
-function makeDraggable(win) {
-  const titleBar = win.querySelector('.title-bar');
-  let isDragging = false, offsetX, offsetY;
-  titleBar.addEventListener('mousedown', e => {
-    if (e.target.closest('.window-controls')) return;
-    isDragging = true;
-    offsetX = e.clientX - win.offsetLeft;
-    offsetY = e.clientY - win.offsetTop;
-    focusWindow(win);
-  });
-  document.addEventListener('mousemove', e => {
-    if (isDragging && !win.classList.contains('maximized')) {
-      win.style.left = `${e.clientX - offsetX}px`;
-      win.style.top = `${e.clientY - offsetY}px`;
-    }
-  });
-  document.addEventListener('mouseup', () => {
-    isDragging = false;
-  });
 }
 
 // --- Time ---
