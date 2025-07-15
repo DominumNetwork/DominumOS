@@ -182,5 +182,68 @@ function getAppContent(title) {
   }
 }
 
+function makeDraggable(win) {
+  const titleBar = win.querySelector('.title-bar');
+  let isDragging = false, offsetX, offsetY;
+  titleBar.addEventListener('mousedown', e => {
+    if (e.target.closest('.window-controls')) return;
+    isDragging = true;
+    offsetX = e.clientX - win.offsetLeft;
+    offsetY = e.clientY - win.offsetTop;
+    focusWindow(win);
+  });
+  document.addEventListener('mousemove', e => {
+    if (isDragging && !win.classList.contains('maximized')) {
+      win.style.left = `${e.clientX - offsetX}px`;
+      win.style.top = `${e.clientY - offsetY}px`;
+    }
+  });
+  document.addEventListener('mouseup', () => {
+    isDragging = false;
+  });
+}
+
+// --- Time ---
+function updateTime() {
+  const now = new Date();
+  timeDisplay.textContent = now.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+}
+setInterval(updateTime, 1000);
+updateTime();
+
+// --- Battery SVG ---
+function renderBattery(level = 0.7, charging = false) {
+  const color = level > 0.5 ? '#4ade80' : level > 0.2 ? '#facc15' : '#ef4444';
+  document.getElementById('battery-svg').innerHTML = `
+    <svg viewBox="0 0 36 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="1" y="4" width="30" height="12" rx="4" fill="#e5e7eb" stroke="#222" stroke-width="1.5"/>
+      <rect x="33" y="8" width="2" height="4" rx="1" fill="#222"/>
+      <rect class="battery-fill" x="3" y="6" width="${26*level}" height="8" rx="3" fill="${color}"/>
+      ${charging ? '<polygon points="16,7 20,7 18,13 22,13 14,19 16,13 12,13" fill="#2563eb"/>' : ''}
+    </svg>
+  `;
+}
+let batteryLevel = 0.7, batteryDir = -0.01;
+setInterval(() => {
+  batteryLevel += batteryDir * (Math.random()*0.03+0.01);
+  if (batteryLevel < 0.15 || batteryLevel > 0.95) batteryDir *= -1;
+  renderBattery(batteryLevel, batteryLevel > 0.95);
+}, 1200);
+renderBattery();
+
+// --- WiFi SVG ---
+function renderWifi(strength = 3) {
+  document.getElementById('wifi-svg').innerHTML = `
+    <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="16" cy="25" r="2.5" fill="#2563eb"/>
+      <path class="wifi-wave" d="M8 19c4-4 12-4 16 0" stroke="#2563eb" stroke-width="2.5" fill="none"/>
+      <path class="wifi-wave" d="M4 15c6-6 18-6 24 0" stroke="#2563eb" stroke-width="2" fill="none"/>
+      <path class="wifi-wave" d="M12 23c2-2 6-2 8 0" stroke="#2563eb" stroke-width="2.5" fill="none"/>
+    </svg>
+  `;
+}
+setInterval(() => renderWifi(Math.floor(Math.random()*4)), 2000);
+renderWifi();
+
 // --- Add widgets, notifications, theme switching, and other logic here as in your original script ---
 // (Paste the rest of your original script here)
