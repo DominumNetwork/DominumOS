@@ -404,6 +404,51 @@
     }
     /* More separation */
     .desktop-icon { margin-bottom: 18px; }
+    /* macOS dock */
+    #macos-dock {
+      display: none;
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      background: rgba(255,255,255,0.85);
+      border-radius: 18px;
+      box-shadow: 0 4px 24px #0002;
+      padding: 8px 18px;
+      z-index: 20001;
+      display: flex;
+      gap: 18px;
+      align-items: flex-end;
+      min-height: 64px;
+      min-width: 320px;
+      max-width: 80vw;
+      border: 1.5px solid #d1d1d6;
+      transition: background 0.2s;
+    }
+    body[data-os='macos'] #macos-dock { display: flex; }
+    #macos-dock .dock-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: 0 2px 8px #0002;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      margin-bottom: 0;
+      position: relative;
+    }
+    #macos-dock .dock-icon:hover {
+      transform: scale(1.18);
+      box-shadow: 0 6px 18px #0003;
+    }
+    #macos-dock .dock-icon img {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+    }
   </style>
 </head>
 <body>
@@ -415,6 +460,7 @@
   </div>
   <div id="wallpaper"></div>
   <div id="desktop"></div>
+  <div id="macos-dock"></div>
   <div id="desktop-widget" style="position:absolute;top:24px;right:32px;z-index:20;min-width:120px;display:none;"></div>
   <div id="sticky-widget"></div>
   <button id="sticky-toggle" title="Sticky Notes">📝</button>

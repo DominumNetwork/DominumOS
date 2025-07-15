@@ -489,3 +489,25 @@ function updateMacOSMenubar() {
   document.getElementById('macos-battery').innerHTML = document.getElementById('battery-svg').innerHTML;
 }
 setInterval(updateMacOSMenubar, 1000);
+
+function renderMacOSDock() {
+  const dock = document.getElementById('macos-dock');
+  if (document.body.getAttribute('data-os') !== 'macos') {
+    dock.style.display = 'none';
+    return;
+  }
+  dock.style.display = 'flex';
+  dock.innerHTML = '';
+  Object.entries(appIcons).forEach(([app, url]) => {
+    const icon = document.createElement('div');
+    icon.className = 'dock-icon';
+    icon.title = app;
+    icon.innerHTML = `<img src="${url}" alt="${app}" />`;
+    icon.onclick = () => launchApp(app);
+    dock.appendChild(icon);
+  });
+}
+document.addEventListener('DOMContentLoaded', renderMacOSDock);
+// Also update dock when OS changes
+const observer = new MutationObserver(renderMacOSDock);
+observer.observe(document.body, { attributes: true, attributeFilter: ['data-os'] });
