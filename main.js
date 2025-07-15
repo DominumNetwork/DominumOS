@@ -276,3 +276,48 @@ document.addEventListener('change', function(e) {
 window.launchApp = launchApp;
 window.makeDraggable = makeDraggable;
 });
+
+// --- Make desktop icons draggable ---
+let draggedIcon = null, iconOffsetX = 0, iconOffsetY = 0;
+desktop.addEventListener('mousedown', function(e) {
+  const icon = e.target.closest('.desktop-icon');
+  if (icon) {
+    draggedIcon = icon;
+    iconOffsetX = e.clientX - icon.offsetLeft;
+    iconOffsetY = e.clientY - icon.offsetTop;
+    desktop.appendChild(icon); // bring to front
+    document.body.style.userSelect = 'none';
+  }
+});
+desktop.addEventListener('mousemove', function(e) {
+  if (draggedIcon) {
+    draggedIcon.style.left = (e.clientX - iconOffsetX) + 'px';
+    draggedIcon.style.top = (e.clientY - iconOffsetY) + 'px';
+  }
+});
+desktop.addEventListener('mouseup', function(e) {
+  if (draggedIcon) {
+    draggedIcon = null;
+    document.body.style.userSelect = '';
+  }
+});
+
+// --- Add app shortcuts to the taskbar ---
+document.addEventListener('DOMContentLoaded', function() {
+  const taskbarLeft = document.querySelector('#taskbar .left');
+  if (taskbarLeft) {
+    const apps = [
+      { title: 'Browser', icon: 'https://img.icons8.com/fluency/48/000000/internet-browser.png' },
+      { title: 'File Explorer', icon: 'https://img.icons8.com/fluency/48/000000/folder-invoices.png' },
+      { title: 'Settings', icon: 'https://img.icons8.com/fluency/48/000000/settings.png' }
+    ];
+    apps.forEach(app => {
+      const btn = document.createElement('button');
+      btn.title = app.title;
+      btn.style = 'background:none;border:none;padding:2px 6px;margin:0 2px;border-radius:8px;cursor:pointer;';
+      btn.innerHTML = `<img src="${app.icon}" style="width:28px;height:28px;vertical-align:middle;"/>`;
+      btn.onclick = () => launchApp(app.title);
+      taskbarLeft.appendChild(btn);
+    });
+  }
+});
