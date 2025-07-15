@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WebOS Browser</title>
+  <link rel="stylesheet" href="browser.css" />
+</head>
+<body>
+  <div class="browser-app">
+    <div class="browser-tabs">
+      <!-- Tabs will be rendered here -->
+      <button id="add-tab">+</button>
+    </div>
+    <div class="browser-navbar">
+      <button id="back-btn" title="Back">⟨</button>
+      <button id="forward-btn" title="Forward">⟩</button>
+      <button id="reload-btn" title="Reload">⟳</button>
+      <input id="browser-address" type="text" placeholder="Search or enter address" />
+      <button id="go-btn">Go</button>
+    </div>
+    <div class="browser-bookmarks">
+      <!-- Bookmarks will be rendered here -->
+    </div>
+    <div class="browser-content">
+      <!-- Tab content (iframe or new tab page) will be rendered here -->
+    </div>
+  </div>
+  <script src="browser.js"></script>
+</body>
+</html>
