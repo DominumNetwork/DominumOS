@@ -144,6 +144,36 @@
       display: flex;
       gap: 6px;
     }
+    /* macOS traffic lights */
+    body[data-theme='macos'] .window-controls {
+      gap: 0.5em;
+    }
+    body[data-theme='macos'] .window-controls button {
+      width: 16px; height: 16px; border-radius: 50%; padding: 0; margin: 0 2px;
+      font-size: 0;
+    }
+    body[data-theme='macos'] .window-controls .minimize { background: #fdbc40; border: 1.5px solid #e1a200; }
+    body[data-theme='macos'] .window-controls .maximize { background: #34c84a; border: 1.5px solid #1a7f2e; }
+    body[data-theme='macos'] .window-controls .close { background: #ff5f57; border: 1.5px solid #c00; }
+    body[data-theme='macos'] .window-controls button:hover { filter: brightness(0.85); }
+    /* ChromeOS shelf */
+    body[data-theme='chromeos'] #taskbar {
+      border-radius: 18px 18px 0 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 480px;
+      min-width: 320px;
+      box-shadow: 0 -2px 24px #0003;
+      background: #fff;
+      border-top: none;
+    }
+    /* Linux panel */
+    body[data-theme='linux'] #taskbar {
+      background: #263238;
+      color: #fff;
+      border-top: 2.5px solid #4caf50;
+      font-family: 'Ubuntu', 'Segoe UI', 'Inter', sans-serif;
+    }
     .window-controls button {
       width: 28px; height: 28px;
       border: none;
@@ -286,6 +316,8 @@
 <body>
   <div id="wallpaper"></div>
   <div id="desktop"></div>
+  <div id="desktop-widget" style="position:absolute;top:24px;right:32px;z-index:20;min-width:120px;display:none;"></div>
+  <div id="notification-area" style="position:fixed;bottom:60px;right:32px;z-index:20000;display:flex;flex-direction:column;gap:12px;"></div>
 
   <div id="start-menu">
     <h3>Start</h3>
@@ -388,12 +420,25 @@
       updateTaskbar();
       // Window controls
       const [minBtn, maxBtn, closeBtn] = win.querySelectorAll('.window-controls button');
-      minBtn.onclick = e => {
+      // macOS traffic lights: swap order and hide icons
+      if (document.body.getAttribute('data-theme') === 'macos') {
+        win.querySelector('.window-controls').innerHTML = `
+          <button class="close" title="Close"></button>
+          <button class="minimize" title="Minimize"></button>
+          <button class="maximize" title="Maximize"></button>
+        `;
+      }
+      // Re-query after possible macOS swap
+      const controls = win.querySelectorAll('.window-controls button');
+      const minBtn2 = controls[1] || minBtn;
+      const maxBtn2 = controls[2] || maxBtn;
+      const closeBtn2 = controls[0] || closeBtn;
+      minBtn2.onclick = e => {
         e.stopPropagation();
         win.style.display = 'none';
         updateTaskbar();
       };
-      maxBtn.onclick = e => {
+      maxBtn2.onclick = e => {
         e.stopPropagation();
         if (win.classList.contains('maximized')) {
           win.classList.remove('maximized');
@@ -413,7 +458,7 @@
           win.style.height = 'calc(100vh - 48px)';
         }
       };
-      closeBtn.onclick = e => {
+      closeBtn2.onclick = e => {
         e.stopPropagation();
         win.remove();
         openWindows = openWindows.filter(w => w !== win);
@@ -501,7 +546,7 @@
         case 'Browser':
           return `<iframe src='https://bing.com' style='width:100%;height:90%;border:none;border-radius:8px;'></iframe>`;
         case 'Settings':
-          return `<div><b>Settings</b><br><br><label>Theme/OS: <select id='theme-select'><option value='win11'>Windows 11</option><option value='macos'>macOS</option><option value='chromeos'>ChromeOS</option><option value='linux'>Linux</option><option value='dark'>Dark</option><option value='light'>Light</option></select></label></div>`;
+          return `<div><b>Settings</b><br><br><label>Theme/OS: <select id='theme-select'><option value='win11'>Windows 11</option><option value='macos'>macOS</option><option value='chromeos'>ChromeOS</option><option value='linux'>Linux</option><option value='dark'>Dark</option><option value='light'>Light</option></select></label><br><br><label>User: <select id='user-select'><option value='user1'>User 1</option><option value='user2'>User 2</option></select></label></div>`;
         case 'Notepad':
           return `<textarea style='width:100%;height:90%;resize:none;font-size:1em;border-radius:8px;padding:8px;border:1px solid #e0e0e0;'></textarea>`;
         case 'Calculator':
@@ -583,6 +628,28 @@
         });
       }
     });
+
+    // --- Notification System ---
+    function notify(msg, timeout = 3500) {
+      const area = document.getElementById('notification-area');
+      const note = document.createElement('div');
+      note.textContent = msg;
+      note.style = 'background:var(--window-bg);color:var(--taskbar-color);padding:14px 22px;border-radius:12px;box-shadow:0 4px 16px #0003;font-size:1.1em;min-width:180px;';
+      area.appendChild(note);
+      setTimeout(() => note.remove(), timeout);
+    }
+    // Example: notify('Welcome to webOS!');
+    setTimeout(() => notify('Welcome to webOS!'), 1200);
+
+    // --- Desktop Widget (Clock) ---
+    function updateDesktopWidget() {
+      const widget = document.getElementById('desktop-widget');
+      const now = new Date();
+      widget.innerHTML = `<div style='background:var(--window-bg);color:var(--taskbar-color);padding:18px 24px;border-radius:18px;box-shadow:0 4px 16px #0002;font-size:2em;text-align:center;'>${now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',second:'2-digit'})}</div>`;
+      widget.style.display = 'block';
+    }
+    setInterval(updateDesktopWidget, 1000);
+    updateDesktopWidget();
   </script>
 </body>
 </html>
