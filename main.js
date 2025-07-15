@@ -56,7 +56,7 @@ startBtn.onclick = e => {
 function launchApp(title) {
   // If app is already open and not multi-instance, focus it
   let win = openWindows.find(w => w.dataset.appTitle === title);
-  if (win && !['Notepad'].includes(title)) {
+  if (win) {
     focusWindow(win);
     return;
   }
@@ -251,6 +251,28 @@ renderWifi();
 
 // --- Add widgets, notifications, theme switching, and other logic here as in your original script ---
 // (Paste the rest of your original script here)
+
+// --- Theme/OS Switching ---
+document.addEventListener('change', function(e) {
+  if (e.target && e.target.id === 'theme-select') {
+    document.body.setAttribute('data-theme', e.target.value);
+  }
+});
+
+// --- Ensure only one instance of each app ---
+// (Already handled in launchApp, but remove Notepad exception)
+// In launchApp, replace:
+//   if (win && !['Notepad'].includes(title)) {
+// with:
+//   if (win) {
+//     focusWindow(win);
+//     return;
+//   }
+// (This is done below)
+
+// --- Fix window control order for macOS and ensure X always closes ---
+// (Already handled by re-querying controls, but make sure closeBtn2 is always the close button)
+
 window.launchApp = launchApp;
 window.makeDraggable = makeDraggable;
 });
