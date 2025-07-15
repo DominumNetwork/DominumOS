@@ -9,6 +9,7 @@ function makeDraggable(win) {
   const titleBar = win.querySelector('.title-bar');
   if (!titleBar) return;
   titleBar.addEventListener('mousedown', (e) => {
+    if (e.target.closest('.window-controls')) return;
     isDragging = true;
     offsetX = e.clientX - win.offsetLeft;
     offsetY = e.clientY - win.offsetTop;
@@ -481,15 +482,56 @@ function updateTaskbar() {
   }
 }
 
-// --- macOS menubar widgets ---
-function updateMacOSMenubar() {
-  if (document.body.getAttribute('data-os') !== 'macos') return;
-  document.getElementById('macos-time').textContent = timeDisplay.textContent;
-  document.getElementById('macos-wifi').innerHTML = document.getElementById('wifi-svg').innerHTML;
-  document.getElementById('macos-battery').innerHTML = document.getElementById('battery-svg').innerHTML;
+// --- Restrict window dragging to title bar only ---
+function makeDraggable(win) {
+  let isDragging = false, offsetX, offsetY;
+  const titleBar = win.querySelector('.title-bar');
+  if (!titleBar) return;
+  titleBar.addEventListener('mousedown', (e) => {
+    if (e.target.closest('.window-controls')) return;
+    isDragging = true;
+    offsetX = e.clientX - win.offsetLeft;
+    offsetY = e.clientY - win.offsetTop;
+    document.body.style.userSelect = 'none';
+  });
+  document.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    win.style.left = (e.clientX - offsetX) + 'px';
+    win.style.top = (e.clientY - offsetY) + 'px';
+  });
+  document.addEventListener('mouseup', () => {
+    isDragging = false;
+    document.body.style.userSelect = '';
+  });
 }
-setInterval(updateMacOSMenubar, 1000);
 
+// --- Taskbar/Dock Open App Indicator ---
+function updateTaskbar() {
+  taskbarApps.innerHTML = '';
+  const os = document.body.getAttribute('data-os') || 'win11';
+  openWindows.forEach(win => {
+    const app = win.dataset.appTitle;
+    let btn = document.querySelector(`#taskbar .left button[title='${app}']`);
+    if (!btn) {
+      btn = document.createElement('button');
+      btn.title = app;
+      btn.style = 'background:none;border:none;padding:2px 6px;margin:0 2px;border-radius:8px;cursor:pointer;';
+      btn.innerHTML = `<img src="${appIcons[app]}" style="width:28px;height:28px;vertical-align:middle;"/>`;
+      btn.onclick = () => launchApp(app);
+      taskbarApps.parentElement.insertBefore(btn, taskbarApps);
+    }
+    // Remove any previous indicator
+    btn.classList.remove('open-app-underline', 'open-app-dot');
+    // Add indicator
+    if (os === 'macos') {
+      // handled in dock
+    } else {
+      btn.classList.add('open-app-underline');
+    }
+  });
+}
+
+// --- macOS Dock Open App Indicator ---
 function renderMacOSDock() {
   const dock = document.getElementById('macos-dock');
   if (document.body.getAttribute('data-os') !== 'macos') {
@@ -504,10 +546,24 @@ function renderMacOSDock() {
     icon.title = app;
     icon.innerHTML = `<img src="${url}" alt="${app}" />`;
     icon.onclick = () => launchApp(app);
+    // Dot indicator if open
+    if (openWindows.find(w => w.dataset.appTitle === app)) {
+      const dot = document.createElement('div');
+      dot.style = 'position:absolute;left:50%;bottom:4px;transform:translateX(-50%);width:8px;height:8px;border-radius:50%;background:#2563eb;';
+      icon.appendChild(dot);
+    }
     dock.appendChild(icon);
   });
 }
-document.addEventListener('DOMContentLoaded', renderMacOSDock);
-// Also update dock when OS changes
-const observer = new MutationObserver(renderMacOSDock);
-observer.observe(document.body, { attributes: true, attributeFilter: ['data-os'] });
+
+// --- Fix macOS menubar update logic ---
+function updateMacOSMenubar() {
+  if (document.body.getAttribute('data-os') !== 'macos') return;
+  document.getElementById('macos-time').textContent = timeDisplay.textContent;
+  document.getElementById('macos-wifi').innerHTML = document.getElementById('wifi-svg').innerHTML;
+  document.getElementById('macos-battery').innerHTML = document.getElementById('battery-svg').innerHTML;
+}
+setInterval(() => {
+  updateMacOSMenubar();
+  renderMacOSDock();
+}, 1000);
