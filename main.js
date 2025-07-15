@@ -1,4 +1,8 @@
-// ... All JavaScript from the <script> tag in index.html goes here ...
+window.onerror = function(msg, url, line, col, error) {
+  alert('JS Error: ' + msg + ' at ' + line + ':' + col);
+};
+
+document.addEventListener('DOMContentLoaded', function() {
 // --- Desktop and Window System ---
 const desktop = document.getElementById('desktop');
 const contextMenu = document.getElementById('context-menu');
