@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WebOS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+    }
+    body, html {
+      height: 100%;
+      background: linear-gradient(to right, #1e1e2f, #2c2c3c);
+      overflow: hidden;
+    }
+    #desktop {
+      width: 100%;
+      height: calc(100% - 40px);
+      position: relative;
+    }
+    .window {
+      width: 400px;
+      height: 300px;
+      background: #fff;
+      position: absolute;
+      top: 50px;
+      left: 50px;
+      border-radius: 10px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.25);
+      transition: all 0.3s ease;
+    }
+    .title-bar {
+      background: #333;
+      color: #fff;
+      padding: 10px;
+      cursor: move;
+      border-radius: 10px 10px 0 0;
+    }
+    .content {
+      padding: 10px;
+      height: calc(100% - 40px);
+      overflow: auto;
+    }
+    #context-menu {
+      position: absolute;
+      background: #222;
+      color: white;
+      border-radius: 5px;
+      padding: 10px;
+      display: none;
+      z-index: 9999;
+    }
+    #context-menu ul {
+      list-style: none;
+    }
+    #context-menu ul li {
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+    #context-menu ul li:hover {
+      background: #444;
+    }
+    #navbar {
+      height: 40px;
+      background: #111;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: white;
+      padding: 0 10px;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      z-index: 10000;
+    }
+    #navbar .left, #navbar .right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    #app-launcher {
+      position: absolute;
+      bottom: 50px;
+      left: 10px;
+      background: #333;
+      color: white;
+      border-radius: 10px;
+      padding: 10px;
+      display: none;
+      z-index: 9999;
+    }
+    .desktop-icon {
+      width: 60px;
+      text-align: center;
+      color: white;
+      position: absolute;
+      cursor: pointer;
+    }
+    .desktop-icon img {
+      width: 40px;
+      height: 40px;
+    }
+  </style>
+</head>
+<body>
+  <div id="desktop"></div>
+
+  <div id="app-launcher">
+    <div onclick="launchApp('Terminal')">Terminal</div>
+    <div onclick="launchApp('File Explorer')">File Explorer</div>
+    <div onclick="launchApp('Browser')">Browser</div>
+    <div onclick="launchApp('Settings')">Settings</div>
+  </div>
+
+  <div id="navbar">
+    <div class="left">
+      <button onclick="toggleAppLauncher()">☰</button>
+    </div>
+    <div class="right">
+      <span id="time-display"></span>
+      <span>📶</span>
+      <span>🔋</span>
+    </div>
+  </div>
+
+  <div id="context-menu">
+    <ul>
+      <li onclick="launchApp('Terminal')">Open Terminal</li>
+      <li onclick="launchApp('File Explorer')">Open File Explorer</li>
+      <li onclick="launchApp('Browser')">Open Browser</li>
+      <li onclick="launchApp('Settings')">Open Settings</li>
+    </ul>
+  </div>
+
+  <script>
+    const desktop = document.getElementById('desktop');
+    const contextMenu = document.getElementById('context-menu');
+    const launcher = document.getElementById('app-launcher');
+    const timeDisplay = document.getElementById('time-display');
+
+    desktop.addEventListener('contextmenu', e => {
+      e.preventDefault();
+      contextMenu.style.left = `${e.pageX}px`;
+      contextMenu.style.top = `${e.pageY}px`;
+      contextMenu.style.display = 'block';
+    });
+
+    window.addEventListener('click', () => {
+      contextMenu.style.display = 'none';
+      launcher.style.display = 'none';
+    });
+
+    function toggleAppLauncher() {
+      launcher.style.display = launcher.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function launchApp(title) {
+      const win = document.createElement('div');
+      win.className = 'window';
+      win.innerHTML = `
+        <div class="title-bar">${title}</div>
+        <div class="content">This is the ${title} app.</div>
+      `;
+      desktop.appendChild(win);
+      makeDraggable(win);
+    }
+
+    function makeDraggable(el) {
+      const titleBar = el.querySelector('.title-bar');
+      let isDragging = false;
+      let offsetX, offsetY;
+
+      titleBar.addEventListener('mousedown', e => {
+        isDragging = true;
+        offsetX = e.clientX - el.offsetLeft;
+        offsetY = e.clientY - el.offsetTop;
+      });
+
+      document.addEventListener('mousemove', e => {
+        if (isDragging) {
+          el.style.left = `${e.clientX - offsetX}px`;
+          el.style.top = `${e.clientY - offsetY}px`;
+        }
+      });
+
+      document.addEventListener('mouseup', () => {
+        isDragging = false;
+      });
+    }
+
+    function createDesktopIcon(title, x, y) {
+      const icon = document.createElement('div');
+      icon.className = 'desktop-icon';
+      icon.style.left = `${x}px`;
+      icon.style.top = `${y}px`;
+      icon.innerHTML = `<img src="https://via.placeholder.com/40" /><div>${title}</div>`;
+      icon.addEventListener('dblclick', () => launchApp(title));
+      desktop.appendChild(icon);
+    }
+
+    ['Terminal', 'File Explorer', 'Browser', 'Settings'].forEach((app, i) => {
+      createDesktopIcon(app, 20 + i * 70, 20);
+    });
+
+    function updateTime() {
+      const now = new Date();
+      timeDisplay.textContent = now.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+    }
+    setInterval(updateTime, 1000);
+    updateTime();
+  </script>
+</body>
+</html>
