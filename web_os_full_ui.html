@@ -70,16 +70,11 @@
       --taskbar-color: #222;
       --font: 'Segoe UI', 'Inter', sans-serif;
     }
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: var(--font);
-    }
     body, html {
       height: 100%;
       background: var(--bg);
       overflow: hidden;
+      transition: background 0.5s, color 0.5s;
     }
     #wallpaper {
       position: fixed;
@@ -311,12 +306,20 @@
       50% { opacity: 1; }
       100% { opacity: 0.7; }
     }
+    #sticky-widget {
+      position: absolute; left: 32px; bottom: 80px; z-index: 20; min-width: 180px; display: none;
+    }
+    #weather-widget {
+      position: absolute; right: 32px; bottom: 120px; z-index: 20; min-width: 180px; display: none;
+    }
   </style>
 </head>
 <body>
   <div id="wallpaper"></div>
   <div id="desktop"></div>
   <div id="desktop-widget" style="position:absolute;top:24px;right:32px;z-index:20;min-width:120px;display:none;"></div>
+  <div id="sticky-widget"></div>
+  <div id="weather-widget"></div>
   <div id="notification-area" style="position:fixed;bottom:60px;right:32px;z-index:20000;display:flex;flex-direction:column;gap:12px;"></div>
 
   <div id="start-menu">
@@ -616,10 +619,32 @@
     setInterval(() => renderWifi(Math.floor(Math.random()*4)), 2000);
     renderWifi();
 
+    // --- Multi-user logic ---
+    let currentUser = localStorage.getItem('webos-user') || 'user1';
+    function switchUser(user) {
+      currentUser = user;
+      localStorage.setItem('webos-user', user);
+      notify('Switched to ' + user);
+      // Reload widgets and apps for new user
+      updateDesktopWidget();
+      updateStickyWidget();
+      updateWeatherWidget();
+    }
+    // Patch Notepad and Music Player to use user-specific keys
+    window.getUserKey = (key) => `${currentUser}:${key}`;
+    // User switcher event
+    desktop.addEventListener('click', function(e) {
+      if (e.target && e.target.id === 'user-select') {
+        e.target.addEventListener('change', function(ev) {
+          switchUser(ev.target.value);
+        });
+      }
+    });
+
     // --- Theme/OS Switcher ---
     function applyTheme(theme) {
-      // Placeholder: will implement full theme/OS switching logic next
       document.body.setAttribute('data-theme', theme);
+      notify('Theme changed to ' + theme);
     }
     desktop.addEventListener('click', function(e) {
       if (e.target && e.target.id === 'theme-select') {
@@ -650,6 +675,32 @@
     }
     setInterval(updateDesktopWidget, 1000);
     updateDesktopWidget();
+
+    // --- Sticky Notes Widget ---
+    function updateStickyWidget() {
+      const widget = document.getElementById('sticky-widget');
+      let note = localStorage.getItem(getUserKey('sticky-note')) || '';
+      widget.innerHTML = `<textarea id='sticky-note' style='width:180px;height:120px;border-radius:10px;background:#fffbe7;color:#222;padding:10px;font-size:1em;box-shadow:0 2px 8px #0002;resize:none;'>${note}</textarea>`;
+      widget.style.display = 'block';
+      const sticky = widget.querySelector('#sticky-note');
+      sticky.oninput = function() {
+        localStorage.setItem(getUserKey('sticky-note'), sticky.value);
+        notify('Sticky note saved!');
+      };
+    }
+    updateStickyWidget();
+
+    // --- Weather Widget (mocked) ---
+    function updateWeatherWidget() {
+      const widget = document.getElementById('weather-widget');
+      // Mocked weather data
+      const weather = { temp: 22, cond: 'Sunny', city: 'Webville' };
+      widget.innerHTML = `<div style='background:var(--window-bg);color:var(--taskbar-color);padding:14px 20px;border-radius:14px;box-shadow:0 4px 16px #0002;font-size:1.1em;text-align:center;'><b>${weather.city}</b><br>${weather.cond}<br>${weather.temp}&deg;C</div>`;
+      widget.style.display = 'block';
+      notify('Weather updated: ' + weather.cond + ', ' + weather.temp + '°C');
+    }
+    setInterval(updateWeatherWidget, 60000);
+    updateWeatherWidget();
   </script>
 </body>
 </html>
