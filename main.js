@@ -277,31 +277,6 @@ window.launchApp = launchApp;
 window.makeDraggable = makeDraggable;
 });
 
-// --- Make desktop icons draggable ---
-let draggedIcon = null, iconOffsetX = 0, iconOffsetY = 0;
-desktop.addEventListener('mousedown', function(e) {
-  const icon = e.target.closest('.desktop-icon');
-  if (icon) {
-    draggedIcon = icon;
-    iconOffsetX = e.clientX - icon.offsetLeft;
-    iconOffsetY = e.clientY - icon.offsetTop;
-    desktop.appendChild(icon); // bring to front
-    document.body.style.userSelect = 'none';
-  }
-});
-desktop.addEventListener('mousemove', function(e) {
-  if (draggedIcon) {
-    draggedIcon.style.left = (e.clientX - iconOffsetX) + 'px';
-    draggedIcon.style.top = (e.clientY - iconOffsetY) + 'px';
-  }
-});
-desktop.addEventListener('mouseup', function(e) {
-  if (draggedIcon) {
-    draggedIcon = null;
-    document.body.style.userSelect = '';
-  }
-});
-
 // --- Add app shortcuts to the taskbar ---
 document.addEventListener('DOMContentLoaded', function() {
   const taskbarLeft = document.querySelector('#taskbar .left');
@@ -318,6 +293,18 @@ document.addEventListener('DOMContentLoaded', function() {
       btn.innerHTML = `<img src="${app.icon}" style="width:28px;height:28px;vertical-align:middle;"/>`;
       btn.onclick = () => launchApp(app.title);
       taskbarLeft.appendChild(btn);
+    });
+  }
+});
+
+// --- Settings Sidebar Navigation ---
+document.addEventListener('click', function(e) {
+  if (e.target.closest('.settings-sidebar div')) {
+    const section = e.target.getAttribute('data-section');
+    document.querySelectorAll('.settings-sidebar div').forEach(d => d.classList.remove('active'));
+    e.target.classList.add('active');
+    document.querySelectorAll('.settings-content section').forEach(s => {
+      s.classList.toggle('active', s.getAttribute('data-section') === section);
     });
   }
 });
@@ -347,19 +334,31 @@ document.addEventListener('change', function(e) {
   document.documentElement.style.setProperty('--accent', accent);
 })();
 
-// --- Settings Sidebar Navigation ---
-document.addEventListener('click', function(e) {
-  if (e.target.closest('.settings-sidebar div')) {
-    const section = e.target.getAttribute('data-section');
-    document.querySelectorAll('.settings-sidebar div').forEach(d => d.classList.remove('active'));
-    e.target.classList.add('active');
-    document.querySelectorAll('.settings-content section').forEach(s => {
-      s.classList.toggle('active', s.getAttribute('data-section') === section);
-    });
+// --- Make desktop icons draggable and persist positions ---
+let draggedIcon = null, iconOffsetX = 0, iconOffsetY = 0;
+desktop.addEventListener('mousedown', function(e) {
+  const icon = e.target.closest('.desktop-icon');
+  if (icon) {
+    draggedIcon = icon;
+    iconOffsetX = e.clientX - icon.offsetLeft;
+    iconOffsetY = e.clientY - icon.offsetTop;
+    desktop.appendChild(icon);
+    document.body.style.userSelect = 'none';
   }
 });
-
-// --- Save/Restore Desktop Icon Positions ---
+desktop.addEventListener('mousemove', function(e) {
+  if (draggedIcon) {
+    draggedIcon.style.left = (e.clientX - iconOffsetX) + 'px';
+    draggedIcon.style.top = (e.clientY - iconOffsetY) + 'px';
+  }
+});
+desktop.addEventListener('mouseup', function(e) {
+  if (draggedIcon) {
+    saveIconPositions();
+    draggedIcon = null;
+    document.body.style.userSelect = '';
+  }
+});
 function saveIconPositions() {
   const icons = Array.from(document.querySelectorAll('.desktop-icon')).map(icon => ({
     title: icon.querySelector('div').textContent,
@@ -378,9 +377,6 @@ function restoreIconPositions() {
     }
   });
 }
-desktop.addEventListener('mouseup', function(e) {
-  if (draggedIcon) saveIconPositions();
-});
 document.addEventListener('DOMContentLoaded', restoreIconPositions);
 
 // --- Notification System ---
