@@ -2,6 +2,7 @@ const tabs = [];
 let activeTab = null;
 let browserTheme = localStorage.getItem('browserTheme') || 'light';
 let bookmarks = JSON.parse(localStorage.getItem('browserBookmarks') || '[]');
+let proxyMode = 'direct';
 
 function setBrowserTheme(theme) {
   document.body.setAttribute('data-browser-theme', theme);
@@ -79,7 +80,19 @@ function renderContent() {
     }, 0);
   } else {
     const iframe = document.createElement('iframe');
-    iframe.src = activeTab.url;
+    if (proxyMode === 'ultraviolet') {
+      // Use Ultraviolet proxy
+      if (window.uv && window.uv.encodeUrl) {
+        const encodedUrl = window.uv.encodeUrl(activeTab.url);
+        iframe.src = encodedUrl;
+      } else {
+        // Fallback to direct if UV not loaded
+        iframe.src = activeTab.url;
+      }
+    } else {
+      // Direct mode
+      iframe.src = activeTab.url;
+    }
     iframe.style = 'width:100%;height:100%;border:none;';
     content.appendChild(iframe);
   }
@@ -145,6 +158,12 @@ document.getElementById('forward-btn').onclick = () => {
 document.getElementById('reload-btn').onclick = () => {
   const iframe = document.querySelector('.browser-content iframe');
   if (iframe) iframe.contentWindow.location.reload();
+};
+document.getElementById('proxy-mode').onchange = function() {
+  proxyMode = this.value;
+  if (activeTab && activeTab.url) {
+    renderContent();
+  }
 };
 
 // Bookmarks bar: right-click to add current tab as bookmark
