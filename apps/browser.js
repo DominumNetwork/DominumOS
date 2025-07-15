@@ -3,6 +3,31 @@ let activeTab = null;
 let browserTheme = localStorage.getItem('browserTheme') || 'light';
 let bookmarks = JSON.parse(localStorage.getItem('browserBookmarks') || '[]');
 let proxyMode = 'direct';
+let uvReady = false;
+
+// Initialize UV when scripts are loaded
+function initUV() {
+  if (typeof window.uv !== 'undefined') {
+    console.log('UV loaded successfully');
+    uvReady = true;
+    // Register service worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/src/uv/uv.sw.js', {
+        scope: '/src/uv/'
+      }).then(() => {
+        console.log('UV Service Worker registered');
+      }).catch(err => {
+        console.error('UV Service Worker registration failed:', err);
+      });
+    }
+  } else {
+    console.error('UV not loaded');
+    uvReady = false;
+  }
+}
+
+// Check if UV is ready
+setTimeout(initUV, 1000);
 
 function setBrowserTheme(theme) {
   document.body.setAttribute('data-browser-theme', theme);
@@ -80,17 +105,22 @@ function renderContent() {
     }, 0);
   } else {
     const iframe = document.createElement('iframe');
-    if (proxyMode === 'ultraviolet') {
+    if (proxyMode === 'ultraviolet' && uvReady) {
       // Use Ultraviolet proxy
-      if (window.uv && window.uv.encodeUrl) {
+      try {
         const encodedUrl = window.uv.encodeUrl(activeTab.url);
+        console.log('Original URL:', activeTab.url);
+        console.log('Encoded URL:', encodedUrl);
         iframe.src = encodedUrl;
-      } else {
-        // Fallback to direct if UV not loaded
-        iframe.src = activeTab.url;
+      } catch (error) {
+        console.error('UV encoding failed:', error);
+        iframe.src = activeTab.url; // Fallback to direct
       }
     } else {
-      // Direct mode
+      // Direct mode or UV not ready
+      if (proxyMode === 'ultraviolet' && !uvReady) {
+        console.warn('UV not ready, using direct mode');
+      }
       iframe.src = activeTab.url;
     }
     iframe.style = 'width:100%;height:100%;border:none;';
