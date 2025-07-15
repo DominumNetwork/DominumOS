@@ -316,6 +316,13 @@
     }
     #sticky-toggle:hover { background: #1746a0; }
     /* Taskbar/Window/Control redesign for each OS */
+    body[data-os='win11'] #taskbar,
+    body[data-os='chromeos'] #taskbar {
+      left: 0;
+      transform: none;
+      width: 100vw;
+      border-radius: 0;
+      min-width: 0;
     body[data-os='win11'] #taskbar {
       background: var(--taskbar-bg);
       border-radius: 18px 18px 0 0;
@@ -366,11 +373,104 @@
     #volume-slider {
       width: 80px;
     }
+    /* macOS top menu bar */
+    #macos-menubar {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 32px;
+      background: #f5f5f7;
+      color: #222;
+      z-index: 20000;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 0 24px;
+      font-family: 'San Francisco', 'Segoe UI', 'Inter', sans-serif;
+      font-size: 1em;
+      border-bottom: 1px solid #d1d1d6;
+      box-shadow: 0 2px 8px #0001;
+    }
+    body[data-os='macos'] #macos-menubar { display: flex; }
+    body[data-os='macos'] #taskbar { bottom: 0; top: auto; }
+    /* Desktop icon size and spacing */
+    .desktop-icon {
+      width: 54px;
+      height: 68px;
+      text-align: center;
+      color: white;
+      position: absolute;
+      cursor: pointer;
+      z-index: 2;
+      filter: drop-shadow(0 2px 8px #0005);
+      transition: transform 0.1s;
+      font-size: 0.92em;
+    }
+    .desktop-icon img {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      margin-bottom: 4px;
+      background: #fff8;
+    }
+    /* More separation */
+    .desktop-icon { margin-bottom: 18px; }
+    /* macOS dock */
+    #macos-dock {
+      display: none;
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      background: rgba(255,255,255,0.85);
+      border-radius: 18px;
+      box-shadow: 0 4px 24px #0002;
+      padding: 8px 18px;
+      z-index: 20001;
+      display: flex;
+      gap: 18px;
+      align-items: flex-end;
+      min-height: 64px;
+      min-width: 320px;
+      max-width: 80vw;
+      border: 1.5px solid #d1d1d6;
+      transition: background 0.2s;
+    }
+    body[data-os='macos'] #macos-dock { display: flex; }
+    #macos-dock .dock-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: 0 2px 8px #0002;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      margin-bottom: 0;
+      position: relative;
+    }
+    #macos-dock .dock-icon:hover {
+      transform: scale(1.18);
+      box-shadow: 0 6px 18px #0003;
+    }
+    #macos-dock .dock-icon img {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+    }
   </style>
 </head>
 <body>
+  <div id="macos-menubar">
+    <span id="macos-time"></span>
+    <span id="macos-wifi" class="svg-icon"></span>
+    <span id="macos-battery" class="svg-icon"></span>
+    <span id="macos-user" style="margin-left:18px;">User</span>
+  </div>
   <div id="wallpaper"></div>
   <div id="desktop"></div>
+  <div id="macos-dock"></div>
   <div id="desktop-widget" style="position:absolute;top:24px;right:32px;z-index:20;min-width:120px;display:none;"></div>
   <div id="sticky-widget"></div>
   <button id="sticky-toggle" title="Sticky Notes">📝</button>

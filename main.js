@@ -54,7 +54,6 @@ startBtn.onclick = e => {
 
 // --- Window Management ---
 function launchApp(title) {
-  // If app is already open and not multi-instance, focus it
   let win = openWindows.find(w => w.dataset.appTitle === title);
   if (win) {
     focusWindow(win);
@@ -64,7 +63,6 @@ function launchApp(title) {
   win.className = 'window';
   win.dataset.appTitle = title;
   win.style.zIndex = zIndexCounter++;
-  // --- Window Controls Order by OS ---
   let controlsHTML = '';
   const os = document.body.getAttribute('data-os') || 'win11';
   if (os === 'macos') {
@@ -80,12 +78,17 @@ function launchApp(title) {
       <button class="close" title="Close">&#x2715;</button>
     `;
   }
+  let content = getAppContent(title);
+  // Special case for Browser: use iframe to apps/browser.html
+  if (title === 'Browser') {
+    content = `<iframe src='apps/browser.html' style='width:100%;height:90%;border:none;border-radius:8px;background:#fff;'></iframe>`;
+  }
   win.innerHTML = `
     <div class="title-bar">
       <span>${title}</span>
       <span class="window-controls">${controlsHTML}</span>
     </div>
-    <div class="content">${getAppContent(title)}</div>
+    <div class="content">${content}</div>
   `;
   desktop.appendChild(win);
   makeDraggable(win);
@@ -149,8 +152,12 @@ function updateTaskbar() {
   openWindows.forEach(win => {
     const btn = document.createElement('button');
     btn.textContent = win.dataset.appTitle;
-    btn.style = 'background:none;border:none;padding:6px 14px;margin:0 2px;border-radius:8px;cursor:pointer;font-weight:500;font-size:1em;transition:background 0.15s;';
+    btn.style = 'background:none;border:none;padding:6px 14px;margin:0 2px;border-radius:8px;cursor:pointer;font-weight:500;font-size:1em;transition:background 0.15s;position:relative;';
     if (win.style.display !== 'none') btn.style.background = '#e0e7ef';
+    // Running indicator
+    const indicator = document.createElement('span');
+    indicator.style = 'position:absolute;bottom:4px;left:50%;transform:translateX(-50%);width:8px;height:8px;border-radius:50%;background:#2563eb;';
+    btn.appendChild(indicator);
     btn.onclick = e => {
       e.stopPropagation();
       if (win.style.display === 'none') win.style.display = '';
@@ -158,6 +165,15 @@ function updateTaskbar() {
     };
     taskbarApps.appendChild(btn);
   });
+  // Make taskbar horizontally scrollable if overflow
+  const os = document.body.getAttribute('data-os') || 'win11';
+  if (os === 'win11' || os === 'chromeos') {
+    taskbarApps.parentElement.style.overflowX = 'auto';
+    taskbarApps.parentElement.style.flexWrap = 'nowrap';
+  } else {
+    taskbarApps.parentElement.style.overflowX = '';
+    taskbarApps.parentElement.style.flexWrap = '';
+  }
 }
 
 // --- Desktop Icons ---
@@ -173,12 +189,11 @@ const appIcons = {
   'Calendar': 'https://img.icons8.com/fluency/48/000000/calendar.png',
   'Gallery': 'https://img.icons8.com/fluency/48/000000/picture.png',
 };
-let iconY = 32;
+let iconY = 24;
 Object.entries(appIcons).forEach(([app, url], i) => {
-  createDesktopIcon(app, 32, iconY, url);
-  iconY += 84;
+  createDesktopIcon(app, 24, iconY, url);
+  iconY += 86;
 });
-
 function createDesktopIcon(title, x, y, iconUrl) {
   const icon = document.createElement('div');
   icon.className = 'desktop-icon';
@@ -455,4 +470,44 @@ function updateTaskbar() {
     };
     taskbarApps.appendChild(btn);
   });
+  // Make taskbar horizontally scrollable if overflow
+  const os = document.body.getAttribute('data-os') || 'win11';
+  if (os === 'win11' || os === 'chromeos') {
+    taskbarApps.parentElement.style.overflowX = 'auto';
+    taskbarApps.parentElement.style.flexWrap = 'nowrap';
+  } else {
+    taskbarApps.parentElement.style.overflowX = '';
+    taskbarApps.parentElement.style.flexWrap = '';
+  }
 }
+
+// --- macOS menubar widgets ---
+function updateMacOSMenubar() {
+  if (document.body.getAttribute('data-os') !== 'macos') return;
+  document.getElementById('macos-time').textContent = timeDisplay.textContent;
+  document.getElementById('macos-wifi').innerHTML = document.getElementById('wifi-svg').innerHTML;
+  document.getElementById('macos-battery').innerHTML = document.getElementById('battery-svg').innerHTML;
+}
+setInterval(updateMacOSMenubar, 1000);
+
+function renderMacOSDock() {
+  const dock = document.getElementById('macos-dock');
+  if (document.body.getAttribute('data-os') !== 'macos') {
+    dock.style.display = 'none';
+    return;
+  }
+  dock.style.display = 'flex';
+  dock.innerHTML = '';
+  Object.entries(appIcons).forEach(([app, url]) => {
+    const icon = document.createElement('div');
+    icon.className = 'dock-icon';
+    icon.title = app;
+    icon.innerHTML = `<img src="${url}" alt="${app}" />`;
+    icon.onclick = () => launchApp(app);
+    dock.appendChild(icon);
+  });
+}
+document.addEventListener('DOMContentLoaded', renderMacOSDock);
+// Also update dock when OS changes
+const observer = new MutationObserver(renderMacOSDock);
+observer.observe(document.body, { attributes: true, attributeFilter: ['data-os'] });
