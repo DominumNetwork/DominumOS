@@ -1,0 +1,6 @@
+body { margin: 0; padding: 0; background: #f8fafc; font-family: 'Segoe UI', sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; }
+#gallery-app { background: #fff; border-radius: 16px; box-shadow: 0 4px 24px #0002; padding: 32px 24px; min-width: 320px; }
+#gallery-upload { margin-bottom: 18px; }
+#gallery { display: flex; flex-wrap: wrap; gap: 12px; }
+#gallery img { width: 100px; height: 100px; object-fit: cover; border-radius: 10px; box-shadow: 0 2px 8px #0001; border: 1.5px solid #e0e0e0; transition: transform 0.15s; cursor: pointer; }
+#gallery img:hover { transform: scale(1.08); border-color: #2563eb; }
