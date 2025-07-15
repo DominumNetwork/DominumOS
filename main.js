@@ -253,4 +253,3 @@ renderWifi();
 // (Paste the rest of your original script here)
 window.launchApp = launchApp;
 window.makeDraggable = makeDraggable;
-});
