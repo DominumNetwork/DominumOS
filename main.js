@@ -321,3 +321,96 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 });
+
+// --- Theme/OS and Accent Switching ---
+document.addEventListener('change', function(e) {
+  if (e.target && e.target.id === 'os-select') {
+    document.body.setAttribute('data-os', e.target.value);
+    localStorage.setItem('os', e.target.value);
+  }
+  if (e.target && e.target.id === 'theme-select') {
+    document.body.setAttribute('data-theme', e.target.value);
+    localStorage.setItem('theme', e.target.value);
+  }
+  if (e.target && e.target.id === 'accent-color') {
+    document.documentElement.style.setProperty('--accent', e.target.value);
+    localStorage.setItem('accent', e.target.value);
+  }
+});
+// On load, restore theme, os, accent
+(function(){
+  const os = localStorage.getItem('os') || 'win11';
+  const theme = localStorage.getItem('theme') || 'light';
+  const accent = localStorage.getItem('accent') || '#2563eb';
+  document.body.setAttribute('data-os', os);
+  document.body.setAttribute('data-theme', theme);
+  document.documentElement.style.setProperty('--accent', accent);
+})();
+
+// --- Settings Sidebar Navigation ---
+document.addEventListener('click', function(e) {
+  if (e.target.closest('.settings-sidebar div')) {
+    const section = e.target.getAttribute('data-section');
+    document.querySelectorAll('.settings-sidebar div').forEach(d => d.classList.remove('active'));
+    e.target.classList.add('active');
+    document.querySelectorAll('.settings-content section').forEach(s => {
+      s.classList.toggle('active', s.getAttribute('data-section') === section);
+    });
+  }
+});
+
+// --- Save/Restore Desktop Icon Positions ---
+function saveIconPositions() {
+  const icons = Array.from(document.querySelectorAll('.desktop-icon')).map(icon => ({
+    title: icon.querySelector('div').textContent,
+    left: icon.style.left,
+    top: icon.style.top
+  }));
+  localStorage.setItem('desktopIcons', JSON.stringify(icons));
+}
+function restoreIconPositions() {
+  const icons = JSON.parse(localStorage.getItem('desktopIcons')||'[]');
+  icons.forEach(data => {
+    const icon = Array.from(document.querySelectorAll('.desktop-icon')).find(i => i.querySelector('div').textContent === data.title);
+    if (icon) {
+      icon.style.left = data.left;
+      icon.style.top = data.top;
+    }
+  });
+}
+desktop.addEventListener('mouseup', function(e) {
+  if (draggedIcon) saveIconPositions();
+});
+document.addEventListener('DOMContentLoaded', restoreIconPositions);
+
+// --- Notification System ---
+window.notify = function(msg, type = 'info') {
+  const area = document.getElementById('notification-area');
+  if (!area) return;
+  const note = document.createElement('div');
+  note.textContent = msg;
+  note.style = `background:${type==='error'?'#e81123':'#2563eb'};color:#fff;padding:12px 20px;border-radius:8px;margin-bottom:8px;box-shadow:0 2px 8px #0003;font-size:1em;opacity:0.95;`;
+  area.appendChild(note);
+  setTimeout(()=>note.remove(), 3500);
+};
+
+// --- Taskbar Running App Indicator ---
+function updateTaskbar() {
+  taskbarApps.innerHTML = '';
+  openWindows.forEach(win => {
+    const btn = document.createElement('button');
+    btn.textContent = win.dataset.appTitle;
+    btn.style = 'background:none;border:none;padding:6px 14px;margin:0 2px;border-radius:8px;cursor:pointer;font-weight:500;font-size:1em;transition:background 0.15s;position:relative;';
+    if (win.style.display !== 'none') btn.style.background = '#e0e7ef';
+    // Running indicator
+    const indicator = document.createElement('span');
+    indicator.style = 'position:absolute;bottom:4px;left:50%;transform:translateX(-50%);width:8px;height:8px;border-radius:50%;background:#2563eb;';
+    btn.appendChild(indicator);
+    btn.onclick = e => {
+      e.stopPropagation();
+      if (win.style.display === 'none') win.style.display = '';
+      focusWindow(win);
+    };
+    taskbarApps.appendChild(btn);
+  });
+}
