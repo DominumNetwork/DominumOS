@@ -251,3 +251,5 @@ renderWifi();
 
 // --- Add widgets, notifications, theme switching, and other logic here as in your original script ---
 // (Paste the rest of your original script here)
+window.launchApp = launchApp;
+window.makeDraggable = makeDraggable;
