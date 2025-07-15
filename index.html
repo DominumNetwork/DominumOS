@@ -474,6 +474,7 @@
       closeBtn2.onclick = e => {
         e.stopPropagation();
         win.parentNode && win.parentNode.removeChild(win);
+        win.remove();
         openWindows = openWindows.filter(w => w !== win);
         updateTaskbar();
       };
@@ -622,6 +623,8 @@
          showTab('personal');
          </script>
          `;
+        case 'Settings':
+          return `<div><b>Settings</b><br><br><label>Theme/OS: <select id='theme-select'><option value='win11'>Windows 11</option><option value='macos'>macOS</option><option value='chromeos'>ChromeOS</option><option value='linux'>Linux</option><option value='dark'>Dark</option><option value='light'>Light</option></select></label><br><br><label>User: <select id='user-select'><option value='user1'>User 1</option><option value='user2'>User 2</option></select></label></div>`;
         case 'Notepad':
           return `<textarea style='width:100%;height:90%;resize:none;font-size:1em;border-radius:8px;padding:8px;border:1px solid #e0e0e0;'></textarea>`;
         case 'Calculator':
@@ -763,6 +766,7 @@
       let note = localStorage.getItem(getUserKey('sticky-note')) || '';
       widget.innerHTML = `<textarea id='sticky-note' style='width:180px;height:120px;border-radius:10px;background:#fffbe7;color:#222;padding:10px;font-size:1em;box-shadow:0 2px 8px #0002;resize:none;'>${note}</textarea>`;
       widget.style.display = stickyVisible ? 'block' : 'none';
+      widget.style.display = 'block';
       const sticky = widget.querySelector('#sticky-note');
       sticky.oninput = function() {
         localStorage.setItem(getUserKey('sticky-note'), sticky.value);
