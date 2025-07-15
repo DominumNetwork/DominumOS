@@ -64,14 +64,26 @@ function launchApp(title) {
   win.className = 'window';
   win.dataset.appTitle = title;
   win.style.zIndex = zIndexCounter++;
+  // --- Window Controls Order by OS ---
+  let controlsHTML = '';
+  const os = document.body.getAttribute('data-os') || 'win11';
+  if (os === 'macos') {
+    controlsHTML = `
+      <button class="close" title="Close"></button>
+      <button class="minimize" title="Minimize"></button>
+      <button class="maximize" title="Maximize"></button>
+    `;
+  } else {
+    controlsHTML = `
+      <button class="minimize" title="Minimize">&#x2015;</button>
+      <button class="maximize" title="Maximize">&#x25A1;</button>
+      <button class="close" title="Close">&#x2715;</button>
+    `;
+  }
   win.innerHTML = `
     <div class="title-bar">
       <span>${title}</span>
-      <span class="window-controls">
-        <button class="minimize" title="Minimize">&#x2015;</button>
-        <button class="maximize" title="Maximize">&#x25A1;</button>
-        <button class="close" title="Close">&#x2715;</button>
-      </span>
+      <span class="window-controls">${controlsHTML}</span>
     </div>
     <div class="content">${getAppContent(title)}</div>
   `;
@@ -81,27 +93,24 @@ function launchApp(title) {
   focusWindow(win);
   openWindows.push(win);
   updateTaskbar();
-  // Window controls
-  const [minBtn, maxBtn, closeBtn] = win.querySelectorAll('.window-controls button');
-  // macOS traffic lights: swap order and hide icons
-  if (document.body.getAttribute('data-theme') === 'macos') {
-    win.querySelector('.window-controls').innerHTML = `
-      <button class="close" title="Close"></button>
-      <button class="minimize" title="Minimize"></button>
-      <button class="maximize" title="Maximize"></button>
-    `;
-  }
-  // Re-query after possible macOS swap
+  // Assign window control actions
   const controls = win.querySelectorAll('.window-controls button');
-  const minBtn2 = controls[1] || minBtn;
-  const maxBtn2 = controls[2] || maxBtn;
-  const closeBtn2 = controls[0] || closeBtn;
-  minBtn2.onclick = e => {
+  let minBtn, maxBtn, closeBtn;
+  if (os === 'macos') {
+    closeBtn = controls[0];
+    minBtn = controls[1];
+    maxBtn = controls[2];
+  } else {
+    minBtn = controls[0];
+    maxBtn = controls[1];
+    closeBtn = controls[2];
+  }
+  minBtn.onclick = e => {
     e.stopPropagation();
     win.style.display = 'none';
     updateTaskbar();
   };
-  maxBtn2.onclick = e => {
+  maxBtn.onclick = e => {
     e.stopPropagation();
     if (win.classList.contains('maximized')) {
       win.classList.remove('maximized');
@@ -121,7 +130,7 @@ function launchApp(title) {
       win.style.height = 'calc(100vh - 48px)';
     }
   };
-  closeBtn2.onclick = e => {
+  closeBtn.onclick = e => {
     e.stopPropagation();
     win.parentNode && win.parentNode.removeChild(win);
     openWindows = openWindows.filter(w => w !== win);
