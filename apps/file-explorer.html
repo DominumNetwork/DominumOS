@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>File Explorer - WebOS</title>
+  <link rel="stylesheet" href="file-explorer.css">
+</head>
+<body>
+  <div class="explorer">
+    <div class="sidebar">
+      <h3>Quick Access</h3>
+      <ul>
+        <li onclick="loadFolder('Desktop')">Desktop</li>
+        <li onclick="loadFolder('Documents')">Documents</li>
+        <li onclick="loadFolder('Downloads')">Downloads</li>
+        <li onclick="loadFolder('Pictures')">Pictures</li>
+      </ul>
+    </div>
+    <div class="main">
+      <div class="topbar">
+        <input type="text" id="addressBar" value="/Desktop" readonly />
+      </div>
+      <div class="toolbar">
+        <button onclick="toggleView()">Toggle View</button>
+      </div>
+      <div class="file-view" id="fileView">
+        <!-- Files and folders will be inserted here -->
+      </div>
+    </div>
+  </div>
+
+  <script src="file-explorer.js"></script>
+</body>
+</html>
