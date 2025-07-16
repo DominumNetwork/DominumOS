@@ -181,7 +181,7 @@ function updateTaskbar() {
 const appIcons = {
   'Terminal': 'https://img.icons8.com/fluency/48/000000/console.png',
   'File Explorer': 'https://img.icons8.com/fluency/48/000000/folder-invoices.png',
-  'Browser': 'https://img.icons8.com/fluency/48/000000/internet-browser.png',
+  'Browser': '*/src/images/DominumNetwork-Logo.png',
   'Settings': 'https://img.icons8.com/fluency/48/000000/settings.png',
   'Notepad': 'https://img.icons8.com/fluency/48/000000/notepad.png',
   'Calculator': 'https://img.icons8.com/fluency/48/000000/calculator.png',
