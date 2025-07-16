@@ -210,9 +210,9 @@ function getAppContent(title) {
     case 'Terminal':
       return `<div style='font-family:monospace;font-size:1em;background:#181818;color:#0f0;padding:8px;border-radius:6px;height:100%;'>webOS@user:~$ <span id='term-cursor'>█</span></div>`;
     case 'File Explorer':
-      return `<div><b>Files:</b><ul><li>Documents</li><li>Pictures</li><li>Music</li><li>Videos</li></ul></div>`;
+      return `<iframe src='apps/file-explorer.html' style='width:100%;height:90%;border:none;border-radius:8px;'></iframe>`;
     case 'Browser':
-      return `<iframe src='https://bing.com' style='width:100%;height:90%;border:none;border-radius:8px;'></iframe>`;
+      return `<iframe src='apps/browser.html' style='width:100%;height:90%;border:none;border-radius:8px;'></iframe>`;
     case 'Calendar':
       return `<iframe src='apps/calendar.html' style='width:100%;height:90%;border:none;border-radius:8px;background:#fff;'></iframe>`;
     case 'Gallery':
