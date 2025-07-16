@@ -208,7 +208,7 @@ function createDesktopIcon(title, x, y, iconUrl) {
 function getAppContent(title) {
   switch (title) {
     case 'Terminal':
-      return `<div style='font-family:monospace;font-size:1em;background:#181818;color:#0f0;padding:8px;border-radius:6px;height:100%;'>webOS@user:~$ <span id='term-cursor'>█</span></div>`;
+      return `<iframe src='apps/terminal.html' style='width:100%;height:90%;border:none;border-radius:8px;'></iframe>`;
     case 'File Explorer':
       return `<iframe src='apps/file-explorer.html' style='width:100%;height:90%;border:none;border-radius:8px;'></iframe>`;
     case 'Browser':
