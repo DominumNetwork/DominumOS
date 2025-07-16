@@ -189,6 +189,7 @@ const appIcons = {
   'Music Player': 'https://img.icons8.com/fluency/48/000000/musical-notes.png',
   'Calendar': 'https://img.icons8.com/fluency/48/000000/calendar.png',
   'Gallery': 'https://img.icons8.com/fluency/48/000000/picture.png',
+  'VS Code': 'src/images/vs-code-logo.png',
 };
 let iconY = 24;
 Object.entries(appIcons).forEach(([app, url], i) => {
@@ -227,6 +228,8 @@ function getAppContent(title) {
       return `<iframe src='apps/paint.html' style='width:100%;height:90%;border:none;border-radius:8px;background:#fff;'></iframe>`;
     case 'Music Player':
       return `<iframe src='apps/music.html' style='width:100%;height:90%;border:none;border-radius:8px;background:#fff;'></iframe>`;
+    case 'VS Code':
+      return `<iframe src='https://vscode.dev/' style='width:100%;height:90%;border:none;border-radius:8px;background:#fff;'></iframe>`;
     default:
       return `This is the ${title} app.`;
   }
