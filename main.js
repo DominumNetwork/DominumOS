@@ -344,7 +344,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const taskbarLeft = document.querySelector('#taskbar .left');
   if (taskbarLeft) {
     const apps = [
-      { title: 'Browser', icon: 'https://img.icons8.com/fluency/48/000000/internet-browser.png' },
+      { title: 'Browser', icon: 'src/images/DominumNetwork-Logo.png' },
       { title: 'File Explorer', icon: 'https://img.icons8.com/fluency/48/000000/folder-invoices.png' },
       { title: 'Settings', icon: 'https://img.icons8.com/fluency/48/000000/settings.png' }
     ];
