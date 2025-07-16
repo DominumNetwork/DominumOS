@@ -218,44 +218,7 @@ function getAppContent(title) {
     case 'Gallery':
       return `<iframe src='apps/gallery.html' style='width:100%;height:90%;border:none;border-radius:8px;background:#fff;'></iframe>`;
     case 'Settings':
-      return `
-      <div class="settings-app" style="display:flex;min-height:260px;">
-        <div class="settings-sidebar" style="width:160px;padding:18px 0 18px 0;background:var(--window-bg);border-right:1.5px solid var(--window-border);display:flex;flex-direction:column;gap:8px;">
-          <div data-section="appearance" class="active" style="padding:10px 18px;cursor:pointer;border-radius:8px;">Appearance</div>
-          <div data-section="system" style="padding:10px 18px;cursor:pointer;border-radius:8px;">System</div>
-          <div data-section="users" style="padding:10px 18px;cursor:pointer;border-radius:8px;">Users</div>
-          <div data-section="personalization" style="padding:10px 18px;cursor:pointer;border-radius:8px;">Personalization</div>
-          <div data-section="widgets" style="padding:10px 18px;cursor:pointer;border-radius:8px;">Widgets</div>
-          <div data-section="about" style="padding:10px 18px;cursor:pointer;border-radius:8px;">About</div>
-        </div>
-        <div class="settings-content" style="flex:1;padding:24px;">
-          <section data-section="appearance" class="active">
-            <label style="display:block;margin-bottom:12px;">OS Design:<br>
-              <select id="os-select" style="margin-top:4px;width:140px;">
-                <option value="win11">Windows 11</option>
-                <option value="macos">macOS</option>
-                <option value="chromeos">ChromeOS</option>
-                <option value="linux">Linux</option>
-              </select>
-            </label>
-            <label style="display:block;margin-bottom:12px;">Theme:<br>
-              <select id="theme-select" style="margin-top:4px;width:140px;">
-                <option value="light">Light</option>
-                <option value="dark">Dark</option>
-              </select>
-            </label>
-            <label style="display:block;margin-bottom:12px;">Accent Color:<br>
-              <input type="color" id="accent-color" value="#2563eb" style="margin-top:4px;width:40px;height:28px;border:none;background:none;" />
-            </label>
-          </section>
-          <section data-section="system" style="display:none;">System settings coming soon.</section>
-          <section data-section="users" style="display:none;">User management coming soon.</section>
-          <section data-section="personalization" style="display:none;">Wallpaper and personalization coming soon.</section>
-          <section data-section="widgets" style="display:none;">Widget toggles coming soon.</section>
-          <section data-section="about" style="display:none;">WebOS v1.0<br>By DominumNetwork</section>
-        </div>
-      </div>
-      `;
+      return `<iframe src='apps/settings.html' style='width:100%;height:90%;border:none;border-radius:8px;background:#fff;'></iframe>`;
     case 'Notepad':
       return `<iframe src='apps/notepad.html' style='width:100%;height:90%;border:none;border-radius:8px;background:#fff;'></iframe>`;
     case 'Calculator':
