@@ -1,3 +1,4 @@
+// --- Core Terminal Bindings and Commands ---
 const terminalInput = document.getElementById("terminal-input");
 const terminalOutput = document.getElementById("terminal-output");
 const snakeCanvas = document.getElementById("snake-canvas");
@@ -18,7 +19,7 @@ const commands = {
   random: () => Math.floor(Math.random() * 1000000),
   joke: () => "Why do JavaScript devs wear glasses? Because they don't C#.",
 
-  cowsay: (args) => `  ${args}\n   \^__^\n   (oo)\\_______\n   (__)\\       )\/\\\n       ||----w |\n       ||     ||`,
+  cowsay: (args) => `  ${args}\n   ^__^\n   (oo)\\_______\n   (__)\\       )\/\\\n       ||----w |\n       ||     ||`,
 
   math: (args) => {
     try {
@@ -29,7 +30,7 @@ const commands = {
   },
 
   tetris: () => {
-    printOutput("Tetris launched. Use arrow keys to move. [WIP]");
+    printOutput("Tetris launched. Use arrow keys to move.");
     startTetris();
   },
 
@@ -110,24 +111,143 @@ terminalInput.addEventListener("keydown", (e) => {
       terminalInput.value = "";
     }
   }
-});
+}
+);
 
-// --- Basic Tetris prototype ---
+// Retain existing Tetris and Snake implementations below...
+// --- Tetris Game Implementation ---
 function startTetris() {
-  const output = document.createElement("div");
-  output.className = "terminal-output-line";
-  output.id = "tetris-output";
-  terminalOutput.appendChild(output);
+  const canvas = document.createElement("canvas");
+  canvas.width = 200;
+  canvas.height = 400;
+  canvas.style.border = "1px solid #0f0";
+  canvas.style.marginTop = "10px";
+  terminalOutput.appendChild(canvas);
+  const ctx = canvas.getContext("2d");
 
-  let board = Array(20).fill().map(() => Array(10).fill(" "));
-  function renderBoard() {
-    output.innerText = board.map(row => row.join(" ")).join("\n");
+  const COLS = 10;
+  const ROWS = 20;
+  const BLOCK_SIZE = 20;
+  const board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+
+  const shapes = [
+    [[1, 1, 1], [0, 1, 0]],
+    [[1, 1], [1, 1]],
+    [[0, 1, 1], [1, 1, 0]],
+    [[1, 1, 0], [0, 1, 1]],
+    [[1, 0, 0], [1, 1, 1]],
+    [[0, 0, 1], [1, 1, 1]],
+    [[1, 1, 1, 1]]
+  ];
+
+  let current = {
+    shape: shapes[Math.floor(Math.random() * shapes.length)],
+    x: 3,
+    y: 0
+  };
+
+  function drawBlock(x, y, color = "#0f0") {
+    ctx.fillStyle = color;
+    ctx.fillRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+    ctx.strokeStyle = "#111";
+    ctx.strokeRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
   }
-  renderBoard();
-  setTimeout(() => printOutput("[Tetris gameplay not implemented yet]"), 1000);
+
+  function drawBoard() {
+    ctx.fillStyle = "black";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    board.forEach((row, y) => {
+      row.forEach((val, x) => {
+        if (val) drawBlock(x, y);
+      });
+    });
+    current.shape.forEach((row, dy) => {
+      row.forEach((val, dx) => {
+        if (val) drawBlock(current.x + dx, current.y + dy, "lime");
+      });
+    });
+  }
+
+  function validMove(x, y, shape) {
+    return shape.every((row, dy) =>
+      row.every((val, dx) => {
+        const nx = x + dx;
+        const ny = y + dy;
+        return (!val || (ny >= 0 && ny < ROWS && nx >= 0 && nx < COLS && !board[ny][nx]));
+      })
+    );
+  }
+
+  function placeShape() {
+    current.shape.forEach((row, dy) => {
+      row.forEach((val, dx) => {
+        if (val) board[current.y + dy][current.x + dx] = 1;
+      });
+    });
+  }
+
+  function clearLines() {
+    for (let y = ROWS - 1; y >= 0; y--) {
+      if (board[y].every(v => v)) {
+        board.splice(y, 1);
+        board.unshift(Array(COLS).fill(0));
+        y++;
+      }
+    }
+  }
+
+  function drop() {
+    if (validMove(current.x, current.y + 1, current.shape)) {
+      current.y++;
+    } else {
+      placeShape();
+      clearLines();
+      current = {
+        shape: shapes[Math.floor(Math.random() * shapes.length)],
+        x: 3,
+        y: 0
+      };
+      if (!validMove(current.x, current.y, current.shape)) {
+        printOutput("Game Over!");
+        clearInterval(tetrisGame);
+        return;
+      }
+    }
+    drawBoard();
+  }
+
+  function move(dx) {
+    if (validMove(current.x + dx, current.y, current.shape)) {
+      current.x += dx;
+      drawBoard();
+    }
+  }
+
+  function rotate() {
+    const rotated = current.shape[0].map((_, i) => current.shape.map(row => row[i]).reverse());
+    if (validMove(current.x, current.y, rotated)) {
+      current.shape = rotated;
+      drawBoard();
+    }
+  }
+
+  window.addEventListener("keydown", e => {
+    switch (e.key) {
+      case "ArrowLeft": move(-1); break;
+      case "ArrowRight": move(1); break;
+      case "ArrowDown": drop(); break;
+      case "ArrowUp": rotate(); break;
+    }
+  });
+
+  drawBoard();
+  if (window.tetrisGame) clearInterval(window.tetrisGame);
+  window.tetrisGame = setInterval(drop, 500);
 }
 
 // --- Snake Game Implementation ---
+snakeCanvas.width = 200;
+snakeCanvas.height = 200;
 let snakeGame;
 function startSnake() {
   const ctx = snakeCanvas.getContext("2d");
@@ -183,37 +303,4 @@ function startSnake() {
   clearInterval(snakeGame);
   interval = setInterval(update, 200);
   snakeGame = interval;
-}
-
-// --- Matrix Effect Implementation ---
-function startMatrix() {
-  const ctx = matrixCanvas.getContext("2d");
-  matrixCanvas.width = terminalOutput.clientWidth;
-  matrixCanvas.height = terminalOutput.clientHeight;
-
-  const letters = "アァイィウヴエェオカガキギクグケゲコゴサザシジスズセゼソゾタダチヂッツヅテデトドナニヌネノハバパヒビピフブプヘベペホボポマミムメモヤユヨラリルレロワヲンABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  const fontSize = 14;
-  const columns = Math.floor(matrixCanvas.width / fontSize);
-  const drops = Array(columns).fill(1);
-
-  function drawMatrix() {
-    ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
-    ctx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
-
-    ctx.fillStyle = "#0f0";
-    ctx.font = `${fontSize}px monospace`;
-
-    for (let i = 0; i < drops.length; i++) {
-      const text = letters.charAt(Math.floor(Math.random() * letters.length));
-      ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-
-      if (drops[i] * fontSize > matrixCanvas.height && Math.random() > 0.975) {
-        drops[i] = 0;
-      }
-      drops[i]++;
-    }
-  }
-
-  if (window.matrixInterval) clearInterval(window.matrixInterval);
-  window.matrixInterval = setInterval(drawMatrix, 50);
 }
