@@ -1,0 +1,55 @@
+.terminal {
+  background: #181818;
+  color: #0f0;
+  font-family: monospace;
+  font-size: 1em;
+  padding: 10px;
+  border-radius: 6px;
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.terminal-input-line {
+  display: flex;
+  align-items: center;
+  margin-top: 6px;
+}
+
+.prompt {
+  margin-right: 6px;
+}
+
+#terminal-input {
+  background: transparent;
+  color: #0f0;
+  border: none;
+  outline: none;
+  flex-grow: 1;
+  font-family: inherit;
+  font-size: inherit;
+  caret-color: #0f0;
+  animation: blink 1s step-start infinite;
+}
+
+@keyframes blink {
+  50% { opacity: 0.5; }
+}
+
+.terminal-output-line {
+  margin-bottom: 4px;
+  white-space: pre-wrap;
+  animation: slideIn 0.3s ease-in-out;
+}
+
+@keyframes slideIn {
+  from { transform: translateY(4px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
