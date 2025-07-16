@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Settings - WebOS</title>
+  <link rel="stylesheet" href="settings.css">
+</head>
+<body>
+  <div class="settings-app">
+    <div class="settings-sidebar">
+      <input type="text" id="settings-search" placeholder="Search...">
+      <div class="settings-tab active" data-section="appearance">🎨 Appearance</div>
+      <div class="settings-tab" data-section="system">🖥️ System</div>
+      <div class="settings-tab" data-section="users">👥 Users</div>
+      <div class="settings-tab" data-section="personalization">🧩 Personalization</div>
+      <div class="settings-tab" data-section="widgets">📲 Widgets</div>
+      <div class="settings-tab" data-section="about">ℹ️ About</div>
+    </div>
+    <div class="settings-content">
+      <section data-section="appearance" class="active">
+        <h2>Appearance</h2>
+        <label>OS Design:
+          <select id="os-select">
+            <option value="win11">Windows 11</option>
+            <option value="macos">macOS</option>
+            <option value="chromeos">ChromeOS</option>
+            <option value="linux">Linux</option>
+          </select>
+        </label>
+        <label>Theme:
+          <select id="theme-select">
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+          </select>
+        </label>
+        <label>Accent Color:
+          <input type="color" id="accent-color" value="#2563eb" />
+        </label>
+      </section>
+
+      <section data-section="system">
+        <h2>System</h2>
+        <label>
+          Enable Performance Mode:
+          <input type="checkbox" id="performance-mode" />
+        </label>
+        <label>
+          System Volume:
+          <input type="range" min="0" max="100" value="75" />
+        </label>
+      </section>
+
+      <section data-section="users">
+        <h2>User Settings</h2>
+        <p>Manage users and permissions.</p>
+      </section>
+
+      <section data-section="personalization">
+        <h2>Personalization</h2>
+        <label>Wallpaper:
+          <input type="file" accept="image/*" />
+        </label>
+        <label>
+          Show Desktop Icons:
+          <input type="checkbox" checked />
+        </label>
+      </section>
+
+      <section data-section="widgets">
+        <h2>Widgets</h2>
+        <label>
+          Enable Clock Widget:
+          <input type="checkbox" />
+        </label>
+        <label>
+          Enable Weather Widget:
+          <input type="checkbox" />
+        </label>
+      </section>
+
+      <section data-section="about">
+        <h2>About</h2>
+        <p><strong>WebOS v1.0</strong><br>Created by DominumNetwork</p>
+      </section>
+    </div>
+  </div>
+  <script src="settings.js"></script>
+</body>
+</html>
